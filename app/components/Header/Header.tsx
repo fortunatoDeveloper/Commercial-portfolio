@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import Button from "../button/Button";
+import Button from "../Button/Button";
 
 const NAV_LINKS = [
   { label: "Work", href: "#work" },
@@ -20,9 +20,33 @@ const Header = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Com o menu aberto: trava o scroll da página, fecha com Esc e fecha ao chegar no desktop
+  useEffect(() => {
+    if (!open) return;
+
+    document.body.style.overflow = "hidden";
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    const mq = window.matchMedia("(min-width: 768px)");
+    const onChange = () => {
+      if (mq.matches) setOpen(false);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    mq.addEventListener("change", onChange);
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKeyDown);
+      mq.removeEventListener("change", onChange);
+    };
+  }, [open]);
+
   return (
     <header className="fixed inset-x-0 top-0 z-50">
-      <div className="mx-auto flex h-16 w-full border-main-light-grey/80 bg-dark/40 backdrop-blur-xl max-w-6xl items-center justify-between px-4 md:px-8">
+      <div className="relative z-10 mx-auto flex h-16 w-full max-w-6xl items-center justify-between bg-background/40 px-4 backdrop-blur-xl md:px-8">
         <Link href="/" className="text-lg font-semibold" onClick={close}>
           Giovani Fortunato
         </Link>
@@ -63,27 +87,32 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Menu mobile */}
-      <div id="mobile-menu" hidden={!open} className="bg-background md:hidden">
-        <nav aria-label="Mobile" className="px-4 pb-5 pt-2">
-          <ul>
-            {NAV_LINKS.map(({ label, href }) => (
-              <li key={href}>
-                <a
-                  href={href}
-                  onClick={close}
-                  className="flex min-h-12 items-center border-b-1 border-b-gray-600 text-2xl font-medium"
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <Button className="mt-6" appearance="tertiary" onClick={goToContact}>
-            Let&apos;s work together
-          </Button>
-        </nav>
-      </div>
+      {/* Menu mobile em tela cheia */}
+      {open && (
+        <div
+          id="mobile-menu"
+          className="fixed inset-0 z-0 flex flex-col overflow-y-auto bg-background px-4 pb-8 pt-16 md:hidden"
+        >
+          <nav aria-label="Mobile" className="py-6">
+            <ul>
+              {NAV_LINKS.map(({ label, href }) => (
+                <li key={href}>
+                  <a
+                    href={href}
+                    onClick={close}
+                    className="flex min-h-12 items-center border-b-1 border-b-gray-600 text-2xl font-medium mb-6 mt-6"
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <Button className="h-20 mt-6 text-2xl" appearance="tertiary" onClick={goToContact}>
+              Let&apos;s work together
+            </Button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

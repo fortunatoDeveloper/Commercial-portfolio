@@ -7,7 +7,7 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 // Mobile primeiro: 48px de altura no celular, 44px a partir de md
-const solidSize = "h-12 px-6 text-base md:h-11 md:px-5 md:text-sm";
+const solidSize = "px-6 md:h-11 md:px-5";
 
 const getAppearanceStyle = (appearance: AppearanceType) =>
   ({
